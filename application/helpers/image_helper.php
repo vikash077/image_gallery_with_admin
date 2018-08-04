@@ -6,16 +6,36 @@ function get_cache_file_path($file, $w, $h) {
     return str_replace(GALLERY_PATH, GALLERY_CACHE_PATH, $path_info['dirname']) . DIRECTORY_SEPARATOR . $path_info['filename'] . $w . 'X' . $h . '.' . $path_info['extension'];
 }
 
-function create_file($file,$target, $size){
-    
+function create_file($file,$target, $size,$backgroundColor='#fff'){
     list($w, $h) = $size;
-    
+   
     $path_info = pathinfo($file);
     try{
         $image = new Imagick($file);
+        $image->scaleImage($w, $h, true);
+        //$image->thumbnailimage($w, $h, true,true);
+        //$image->cropthumbnailimage($w, $h);
         $image->setImageFormat($path_info['extension']);
-        $image->thumbnailImage($w, $h, false);
+//        if($path_info['extension'] != 'tif'){
+//            $old_w = $image->getimagewidth();
+//            $old_h = $image->getimageheight();
+//
+//            $xpos = (int)abs(($old_w-$w) / 2);
+//            $ypos = (int)abs(($old_h-$h) / 2);
+//
+//            $new_image = new Imagick();
+//            $new_image->newImage($w,$h, $backgroundColor);
+//            $new_image->setImageFormat($path_info['extension']);
+//
+//            $new_image->compositeimage($image->getimage(), Imagick::COMPOSITE_COPY, $xpos, $ypos);
+//            
+//            $image = $new_image;
+//        }
+        //$old_image->getImageBlob();
+        
+        
     } catch (Exception $e){
+        
        $image = get_empty_file('gray','white','red',$w, $h);
        
     }
@@ -34,6 +54,7 @@ function get_cache_file($file, $size) {
     list($w, $h) = $size;
 
     $cache_file = get_cache_file_path($file, $w, $h);
+    return create_file($file, $cache_file,$size);
     
     if (file_exists($cache_file)) {
         return $cache_file;
@@ -44,6 +65,9 @@ function get_cache_file($file, $size) {
 
 function get_file($file, $size) {
     try {
+        //list($w, $h) = $size;
+        //resize($file, $w, $h);
+        
         if (!empty($size)) {
             $file = get_cache_file($file, $size);
             $image = new Imagick($file);
@@ -97,6 +121,56 @@ function get_empty_file($strokeColor, $fillColor, $backgroundColor,$w=70,$h=100)
    // header("Content-Type: image/png");
     return  $imagick;
 }
+
+
+function resize($filename, $width, $height) {
+		if (!is_file($filename) ) {
+			return;
+		}
+                //$ci =& get_instance();
+                //$ci->load->helper('utf8');
+                
+		$extension = pathinfo($filename, PATHINFO_EXTENSION);
+
+		$image_old = $filename;
+		$image_new = get_cache_file_path($filename,$width, $height);
+                        //'cache/' . utf8_substr($filename, 0, utf8_strrpos($filename, '.')) . '-' . (int)$width . 'x' . (int)$height . '.' . $extension;
+
+		if (!is_file($image_new) || (filemtime($image_old) > filemtime($image_new))) {
+			list($width_orig, $height_orig, $image_type) = getimagesize($image_old);
+				 
+			if (!in_array($image_type, array(IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_GIF,IMAGETYPE_TIFF_II,IMAGETYPE_TIFF_MM))) { 
+				return $image_old;
+			}
+						
+			$path = '';
+
+			$directories = explode('/', dirname($image_new));
+
+			foreach ($directories as $directory) {
+				$path = $path . '/' . $directory;
+
+				if (!is_dir($path)) {
+					@mkdir($path, 0777);
+				}
+			}
+
+			if ($width_orig != $width || $height_orig != $height) {
+				$image = new Image($image_old);
+				$image->resize($width, $height);
+				$image->save($image_new);
+			} else {
+				copy($image_old,$image_new);
+			}
+		}
+		
+		$image_new = str_replace(' ', '%20', $image_new);  // fix bug when attach image on email (gmail.com). it is automatic changing space " " to +
+		echo $image_new;
+                die;
+		
+	}
+
+
 
 
 function resizeImage($imagePath, $width, $height, $filterType, $blur, $bestFit, $cropZoom) {

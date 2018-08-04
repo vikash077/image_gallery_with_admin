@@ -15,7 +15,7 @@ class Admin extends CI_Controller {
         $this->load->database();
         $this->load->model('user_model');
         $this->load->library(array('form_validation', 'session', 'user_agent'));
-        $this->load->helper(['form', 'url','image','cias']);
+        $this->load->helper(['utf8','form', 'url','image','cias']);
         
         $isLoggedIn = $this->session->userdata('isLoggedIn');
         if(!isset($isLoggedIn) || $isLoggedIn != TRUE){
@@ -182,53 +182,66 @@ class Admin extends CI_Controller {
    // This function used to create new password
     function createPasswordUser()
     {
-        
-        $this->load->library('form_validation');
-        
-        $this->form_validation->set_rules('name','Name','trim|required|max_length[20]');
-        $this->form_validation->set_rules('email','Email','trim|required|valid_email');
-        $this->form_validation->set_rules('access','Access','required|max_length[20]');
-        $this->form_validation->set_rules('password','New Password','required|max_length[20]');
-        $this->form_validation->set_rules('cpassword','New Re-Password','trim|required|matches[password]|max_length[20]');
-        
-        if($this->form_validation->run() == FALSE)
-        {
-            echo json_encode(array('errors' => validation_errors()));
-            die;
-        }
-        else
-        {
-            $password = $this->input->post('password');
-            $cpassword = $this->input->post('cpassword');
-            $name = $this->input->post('name');
-            $email = $this->input->post('email');
-            $access = $this->input->post('access');
-            
-            // Check activation id in database
-            //$is_correct = $this->user_model->checkActivationDetails($email, $activation_id);
-            $is_correct =  1;
-            if(($is_correct == 1) && ($password == $cpassword))
+        try{
+            $this->load->library('form_validation');
+
+            $this->form_validation->set_rules('name','Name','trim|required|max_length[20]');
+            $this->form_validation->set_rules('email','Email','trim|required|valid_email');
+            $this->form_validation->set_rules('access','Access','required|max_length[20]');
+            $this->form_validation->set_rules('password','New Password','required|max_length[20]');
+            $this->form_validation->set_rules('cpassword','New Re-Password','trim|required|matches[password]|max_length[20]');
+
+            if($this->form_validation->run() == FALSE)
             {
-                $password = getHashedPassword($password);
-                $data = [
-                    'user_name'=>$email,
-                    'Name'=>$name,
-                    'access'=>$access,
-                    'password'=>$password
-                    ];
-                
-                if($this->db->insert('users',$data)){
-                    echo json_encode(array('success' => 'New User is added'));
-                    die;
-                }
+                $this->session->set_flashdata('errors', json_encode(array('errors' => validation_errors())));
+                redirect("admin/users");
+                return;
             }
             else
             {
-                echo json_encode(array('error' => 'confirm password do not match'));
-                die;
+                $password = $this->input->post('password');
+                $cpassword = $this->input->post('cpassword');
+                $name = $this->input->post('name');
+                $email = $this->input->post('email');
+                $access = $this->input->post('access');
+
+                // Check activation id in database
+                //$is_correct = $this->user_model->checkActivationDetails($email, $activation_id);
+                $is_correct =  1;
+                if(($is_correct == 1) && ($password == $cpassword))
+                {
+                    $password = getHashedPassword($password);
+                    $data = [
+                        'user_name'=>$email,
+                        'Name'=>$name,
+                        'access'=>$access,
+                        'password'=>$password
+                        ];
+
+                    if($this->db->insert('users',$data)){
+                        $this->session->set_flashdata('success', 'New User is added successfully');
+                        redirect("admin/users");
+                        return;
+                    }
+                }
+                else
+                {
+                    $this->session->set_flashdata('error', 'confirm password do not match');
+                    redirect("admin/users");
+                    return;
+                }
+                $this->session->set_flashdata('error', 'Something went wrong!');
+                redirect("admin/users");
+                return;
             }
-            echo json_encode(array('error' => 'Something went wrong'));
-            die;
+        }catch(PDOException $e){
+            $this->session->set_flashdata('error', 'Something went wrong!');
+            redirect("admin/users");
+            return;
+        }catch(Exception $e){
+            $this->session->set_flashdata('error', 'Something went wrong!');
+            redirect("admin/users");
+            return;
         }
     }
    /**
@@ -259,11 +272,17 @@ class Admin extends CI_Controller {
     *
     * @return Response
    */
-   public function delete($id)
+   public function delete_user($id)
    {
-       $this->db->where('id', $id);
-       $this->db->delete('products');
-       redirect(base_url('products'));
+       if($this->db->delete('users',['id'=> $id])){
+           $this->session->set_flashdata('success', 'User Succesfully deleted');
+           redirect("admin/users");
+           return;
+       }
+       
+        $this->session->set_flashdata('error', 'Something went wrong!');
+        redirect("admin/users");
+        return;
    }
 
 

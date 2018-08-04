@@ -56,7 +56,7 @@
 
         // --- Initialize sample trees
         $("#tree").dynatree({
-            checkbox: true,
+            //checkbox: true,
             // Override class name for checkbox icon:
             classNames: {checkbox: "dynatree-radio"},
             selectMode: 1,

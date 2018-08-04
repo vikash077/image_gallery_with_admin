@@ -46,6 +46,43 @@
                         </div>
                         <div class="row">
                             <div class="col-md-12">
+                               <?php $success =  $this->session->flashdata('success'); 
+                               if(!empty($success)){
+                               ?>
+                                <div class="alert alert-success alert-dismissible">
+                                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                                        <h4><i class="icon fa fa-info"></i> Success!</h4>
+                                        <?php echo $success; ?>
+                                    </div>
+                                
+                               <?php } ?>
+                                
+                                <?php $error =  $this->session->flashdata('error'); 
+                               if(!empty($error)){
+                               ?>
+                                <div class="alert alert-danger alert-dismissible">
+                                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                                        <h4><i class="icon fa fa-warning"></i> Error!</h4>
+                                        <?php echo $error; ?>
+                                    </div>
+                                
+                               <?php } ?>
+                                
+                                <?php $errors =  $this->session->flashdata('errors'); 
+                               if(!empty($errors)){
+                               ?>
+                                <div class="alert alert-danger alert-dismissible">
+                                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                                        <h4><i class="icon fa fa-warning"></i> Error!</h4>
+                                        <?php $errors = json_decode($errors);
+                                        foreach($errors as $error){
+                                            echo '<p>'.$error.'</p>';
+                                        }
+                                        ?>
+                                    </div>
+                                
+                               <?php } ?>
+                                
                                 <?php if (!empty($data)) { ?>
                                 <table class="table table-bordered">
                                     <tr>
@@ -53,6 +90,7 @@
                                         <th>NAME</th>
                                         <th>USER_NAME</th>
                                         <th>ROLE</th>
+                                        <th>Action</th>
                                     </tr>
                                     <?php
                                     foreach ($data as $d) { ?> 
@@ -61,6 +99,10 @@
                                         <td><?php echo $d->Name; ?></td>
                                         <td><?php echo $d->user_name; ?></td>
                                         <td><?php echo $d->access; ?></td>
+                                        <td>
+                                            <!--button type="button" class="btn btn-primary edit_user">Edit</button-->
+                                            <button type="button" data-id="<?php echo $d->id; ?>" class="btn btn-danger delete_user">Delete</button>
+                                        </td>
                                     </tr>
                                     <?php } ?>
                                 </table>
@@ -108,11 +150,11 @@
                             </div>
                             <div class="form-group">
                                 <label for="password" class="col-form-label">Password:</label>
-                                <input type="tel" class="form-control" id="password"  name="password" required="required">
+                                <input type="text" class="form-control" id="password"  name="password" required="required">
                             </div>
                             <div class="form-group">
                                 <label for="cpassword" class="col-form-label">Confirm Password:</label>
-                                <input type="tel" class="form-control" id="cpassword"  name="cpassword" required="required">
+                                <input type="text" class="form-control" id="cpassword"  name="cpassword" required="required">
                             </div>
                             <div class="form-group">
                                 <label for="access" class="col-form-label">Access:</label>
@@ -136,5 +178,17 @@
 
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
+        <script>
+            $(function(){
+                $('.delete_user').click(function(){
+                    id = $(this).data('id');
+                    bootbox.confirm('Do you want to continue?',function(result){
+                        if(result === true){
+                            window.location = '<?php echo base_url('index.php/admin/delete_user');?>/'+id;
+                        }
+                    });
+                });
+            });
+        </script>
     </body>
 </html>

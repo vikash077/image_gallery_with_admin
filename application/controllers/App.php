@@ -44,4 +44,20 @@ class App extends CI_Controller {
             $size = array_filter(explode('X', $this->input->get('size')));
             resizeImage(BASEPATH . '../gallery/'.$this->input->get('file'), $size[0], $size[1], 2, 0, FALSE, $cropZoom=True);
         }
+        
+        public function download() {
+            $filepath = BASEPATH . '../gallery/'.$this->input->get('file');
+            if(file_exists($filepath)) {
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="'.basename($filepath).'"');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize($filepath));
+                flush(); // Flush system output buffer
+                readfile($filepath);
+                exit;
+            }
+        }
 }

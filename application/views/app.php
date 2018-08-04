@@ -39,19 +39,25 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
             .image__cell {
                 float: left;
+            }
+            
+/*            img.basic__img{
+                display: block;
+                margin-left: auto;
+                margin-right: auto 
+            }*/
+            
+            div.image--basic {
+                width: 250px;
+                height: 250px;
+                text-align: center;
+                display: table-cell;
+                vertical-align: middle;
                 position: relative;
             }
+            
 
-            .image--basic {
-                padding: 0 5px;
-            }
 
-            .basic__img {
-                display: block;
-                max-width: 100%;
-                height: auto;
-                margin: 0 auto;
-            }
 
             .image__cell.is-collapsed .image--basic {
                 cursor: pointer;
@@ -85,6 +91,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 height: 0;
                 width: 0;
                 margin: 2px auto 0;
+                position: absolute;
+                bottom: 0px;
+                left:120px;
             }
 
             .expand__close {
@@ -487,7 +496,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             </div>
                                          <?php }else{ ?>
                                              <div class="col-sm-3">
-                                                <button type="button" class="btn btn-block btn-default btn-sm"><i class="fa fa-download" aria-hidden="true" style="color:#F00000"></i> Download</button>
+                                                 <a class="btn btn-block btn-default btn-sm" href='<?php echo base_url("index.php/app/download?file={$file['file']}");?>'><i class="fa fa-download" aria-hidden="true" style="color:#F00000"></i> Download</a>
                                             </div>
                                         <?php } ?>
                                     </div>
