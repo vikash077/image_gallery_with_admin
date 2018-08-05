@@ -45,8 +45,26 @@ class App extends CI_Controller {
             resizeImage(BASEPATH . '../gallery/'.$this->input->get('file'), $size[0], $size[1], 2, 0, FALSE, $cropZoom=True);
         }
         
+        public function getRequredSize($input_file,$size) {
+            
+            $file = realpath($input_file);
+            $path_info = pathinfo($file);
+            //return str_replace(GALLERY_PATH, GALLERY_CACHE_PATH, $path_info['dirname']) . DIRECTORY_SEPARATOR . $path_info['filename'] . $w . 'X' . $h . '.' . $path_info['extension'];
+            $output_file = '/tmp/' . $path_info['filename'] .'-'.$size.'.' .$path_info['extension'];
+
+            $cmd = "convert -resize {$size}%  $input_file $output_file";
+            exec("convert $cmd");
+            
+            return $output_file;
+        }
+        
         public function download() {
             $filepath = BASEPATH . '../gallery/'.$this->input->get('file');
+            $size = $this->input->get('size');
+            if(!empty($size)){
+               $filepath = $this->getRequredSize($filepath,$size);
+            }
+            
             if(file_exists($filepath)) {
                 header('Content-Description: File Transfer');
                 header('Content-Type: application/octet-stream');

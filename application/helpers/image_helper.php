@@ -6,6 +6,37 @@ function get_cache_file_path($file, $w, $h) {
     return str_replace(GALLERY_PATH, GALLERY_CACHE_PATH, $path_info['dirname']) . DIRECTORY_SEPARATOR . $path_info['filename'] . $w . 'X' . $h . '.' . $path_info['extension'];
 }
 
+
+function image_downlowdable_sizes($file){
+    try{
+        $image = new Imagick($file);
+        $exifArray = $image->identifyImage();
+       
+        $width = $exifArray['geometry']['width'];
+        $height = $exifArray['geometry']['height'];
+        return [
+            50=>[
+                'label'=>'50%',
+                'width'=> round(($width - ($width*50/100)),0),
+                'height'=> round(($height - ($height*50/100)),0)
+            ],
+            70=>[
+                'label'=>'70%',
+                'width'=> round(($width - ($width*30/100)),0),
+                'height'=> round(($height - ($height*30/100)),0)
+            ],
+            100=>[
+                'label'=>'Full Size',
+                'width'=> ($width),
+                'height'=> ($height)
+            ]
+        ];
+    }catch(Exception $e){
+        return [];
+    }
+    
+}
+
 function create_file($file,$target, $size,$backgroundColor='#fff'){
     list($w, $h) = $size;
    

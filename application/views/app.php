@@ -460,6 +460,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php
             if (!empty($search)) {
                 foreach ($search as $file) {
+                    if(file_exists(realpath(GALLERY_PATH.'/'.$file['file']))){
                     ?>
 
                     <div class="image__cell is-collapsed">
@@ -484,16 +485,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         </div>
                                         <?php $path_info = pathinfo($file['file']);
                                          if(in_array($path_info['extension'],['png','jpeg','jpg'])){ 
+                                             $sizes = image_downlowdable_sizes(realpath(GALLERY_PATH.'/'.$file['file']));
                                         ?>
-                                            <div class="col-sm-3">
-                                                <button type="button" class="btn btn-block btn-default btn-sm"><i class="fa fa-download" aria-hidden="true" style="color:#F00000"></i> Small 250 X 250</button>
-                                            </div>
-                                            <div class="col-sm-3">
-                                                <button type="button" class="btn btn-block btn-default btn-sm"><i class="fa fa-download" aria-hidden="true" style="color:#F00000"></i> Normal 500 X 500</button>
-                                            </div>
-                                            <div class="col-sm-3">
-                                                <button type="button" class="btn btn-block btn-default btn-sm"><i class="fa fa-download" aria-hidden="true" style="color:#F00000"></i> Large (FULL)</button>
-                                            </div>
+                                        
+                                            <?php foreach($sizes as $s=>$geometry){ 
+                                                $size = null;
+                                                if($s != 100){
+                                                        $size = '&size='.$s;
+                                                }
+                                                ?>
+                                                <div class="col-sm-3">
+                                                    <a type="button" class="btn btn-block btn-default btn-sm" href='<?php echo base_url("index.php/app/download?file={$file['file']}{$size}");?>'><i class="fa fa-download" aria-hidden="true" style="color:#F00000"></i> <?php echo "{$geometry['label']} {$geometry['width']} X {$geometry['height']}" ;?></a>
+                                                </div>
+                                            <?php } ?>
                                          <?php }else{ ?>
                                              <div class="col-sm-3">
                                                  <a class="btn btn-block btn-default btn-sm" href='<?php echo base_url("index.php/app/download?file={$file['file']}");?>'><i class="fa fa-download" aria-hidden="true" style="color:#F00000"></i> Download</a>
@@ -506,6 +510,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php
+                    }
                 }
             } else if (empty($search_txt)) {
                 ?>
