@@ -484,7 +484,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             <p class="lead"><?php echo $file['title']; ?></p>
                                         </div>
                                         <?php $path_info = pathinfo($file['file']);
-                                         if(in_array($path_info['extension'],['png','jpeg','jpg'])){ 
+                                         if(in_array($path_info['extension'],['png','jpeg','jpg','tif'])){ 
                                              $sizes = image_downlowdable_sizes(realpath(GALLERY_PATH.'/'.$file['file']));
                                         ?>
                                         
@@ -511,7 +511,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                     <?php
                     }
-                }
+                } ?>
+            <div class="row">
+            <div><?php echo $links; ?></div>
+            </div>
+            <?php 
             } else if (empty($search_txt)) {
                 ?>
             <div class="container">

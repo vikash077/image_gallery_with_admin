@@ -21,15 +21,57 @@ class App extends CI_Controller {
 	    $this->load->view('app',['user_data'=>$user_data]);
 	}
         
+        protected function get_search($search,$offset,$limit){
+            $sql = "SELECT * FROM files where 1=1 AND (find_in_set('$search',tags) OR file like '%$search%') limit $offset , $limit";
+            return  $this->db->query($sql)->result_array();
+        }
+        
+        protected function search_count($search){
+            $sql = "SELECT count(*) as count FROM files where 1=1 AND (find_in_set('$search',tags) OR file like '%$search%')";
+
+            $search_data = $this->db->query($sql)->row();
+            
+            return $search_data->count;
+        }
+
+
         public function search() {
             $search = $this->input->get('search');
             if(!empty($search)){
-                $sql = "SELECT * FROM files where 1=1 AND (find_in_set('$search',tags) OR file like '%$search%')";
+                $this->load->library('pagination');
+                
+                $config['full_tag_open'] = "<ul class='pagination'>";
+                $config['full_tag_close'] ="</ul>";
+                $config['num_tag_open'] = '<li>';
+                $config['num_tag_close'] = '</li>';
+                $config['cur_tag_open'] = "<li class='disabled'><li class='active'><a href='#'>";
+                $config['cur_tag_close'] = "<span class='sr-only'></span></a></li>";
+                $config['next_tag_open'] = "<li>";
+                $config['next_tagl_close'] = "</li>";
+                $config['prev_tag_open'] = "<li>";
+                $config['prev_tagl_close'] = "</li>";
+                $config['first_tag_open'] = "<li>";
+                $config['first_tagl_close'] = "</li>";
+                $config['last_tag_open'] = "<li>";
+                $config['last_tagl_close'] = "</li>";
+                
+                $config['base_url'] = base_url("index.php/app/search/?search=$search");
+                $config['enable_query_strings'] = TRUE;
+                $config['page_query_string'] = TRUE;
+                //$config['query_string_segment'] = "page";
+                $config['reuse_query_string'] = FALSE;
+                $config['total_rows'] = $this->search_count($search);
+                $config['per_page'] = 99;
+                
+                $offset =($this->input->get('per_page')) ? $this->input->get('per_page') : 0;
+                $this->pagination->initialize($config);
 
-                $search_data = $this->db->query($sql)->result_array();
+                $links = $this->pagination->create_links();
+                
+                $search_data = $this->get_search($search,$offset,$config['per_page']);
                 $user_data = $this->session->userdata();
-
-                $this->load->view('app',['search'=>$search_data,'search_txt' => $search,'user_data'=>$user_data]);
+                
+                $this->load->view('app',['search'=>$search_data,'search_txt' => $search,'user_data'=>$user_data,'links'=>$links]);
             }else{
                 redirect('/');
             }

@@ -69,7 +69,8 @@ class Admin extends CI_Controller {
             }
             $r = array_merge_recursive($r, $path);
         }
-
+        ksort($r);
+        
         $tree = $this->treeData($r);
         
         return $tree;

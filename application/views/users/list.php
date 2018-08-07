@@ -100,7 +100,7 @@
                                         <td><?php echo $d->user_name; ?></td>
                                         <td><?php echo $d->access; ?></td>
                                         <td>
-                                            <!--button type="button" class="btn btn-primary edit_user">Edit</button-->
+                                            <button type="button" class="btn btn-primary edit_user">Edit</button>
                                             <button type="button" data-id="<?php echo $d->id; ?>" class="btn btn-danger delete_user">Delete</button>
                                         </td>
                                     </tr>

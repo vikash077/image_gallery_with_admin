@@ -26,7 +26,7 @@ function image_downlowdable_sizes($file){
                 'height'=> round(($height - ($height*30/100)),0)
             ],
             100=>[
-                'label'=>'Full Size',
+                'label'=>'Full',
                 'width'=> ($width),
                 'height'=> ($height)
             ]
@@ -43,7 +43,7 @@ function create_file($file,$target, $size,$backgroundColor='#fff'){
     $path_info = pathinfo($file);
     try{
         $image = new Imagick($file);
-        $image->scaleImage($w, $h, true);
+        $image->scaleImage($w, $h, false);
         //$image->thumbnailimage($w, $h, true,true);
         //$image->cropthumbnailimage($w, $h);
         $image->setImageFormat($path_info['extension']);
@@ -67,7 +67,7 @@ function create_file($file,$target, $size,$backgroundColor='#fff'){
         
     } catch (Exception $e){
         
-       $image = get_empty_file('gray','white','red',$w, $h);
+       $image = get_empty_file('gray','white','gray',$w, $h);
        
     }
     
@@ -85,7 +85,7 @@ function get_cache_file($file, $size) {
     list($w, $h) = $size;
 
     $cache_file = get_cache_file_path($file, $w, $h);
-    return create_file($file, $cache_file,$size);
+    //return create_file($file, $cache_file,$size);
     
     if (file_exists($cache_file)) {
         return $cache_file;
@@ -115,7 +115,7 @@ function get_file($file, $size) {
         echo $image->getImageBlob();
     } catch (Exception $e) {
        header("Content-Type: image/png");
-       $img =  get_empty_file('gray','white','red');
+       $img =  get_empty_file('gray','white','gray');
        echo $img->getImageBlob();
     }
 }
